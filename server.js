@@ -29,10 +29,11 @@ app.use(cors()); // Enable CORS if you're making requests from a different origi
 app.use(express.static(path.join(__dirname, "public")));
 // Create MySQL connection
 const db = mysql.createConnection({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
-  database: process.env.MYSQL_DB || "nadeera_game", // Adjust according to your database name
+  host: 'localhost',
+  user: 'root',
+  password: 'MAkavindu@1998',
+  database: 'nadeera_game', // Adjust according to your database name
+  port: 3306,
 });
 
 // Connect to MySQL
@@ -54,7 +55,7 @@ io.on("connection", (socket) => {
     // Assuming color_object is an array, push the whole object (not just the first element)
     /*check balance of trader*/
     db.query(
-      "SELECT * FROM lottery_game_users WHERE Serial = ? AND user_name = ?",
+      "SELECT * FROM game_users WHERE Serial = ? AND user_name = ?",
       [Serial, Username],
       (err, result) => {
         if (err) {
@@ -88,7 +89,7 @@ io.on("connection", (socket) => {
             let updatedbalance = prebal - stake;
             console.log(prebal, stake, updatedbalance);
             db.query(
-              "UPDATE lottery_game_users SET balance = ? WHERE Serial = ?",
+              "UPDATE game_users SET balance = ? WHERE Serial = ?",
               [updatedbalance, Serial],
               (err, result) => {
                 if (err) {
@@ -137,7 +138,7 @@ io.on("connection", (socket) => {
     );
 
     db.query(
-      "UPDATE lottery_game_users SET token = ? WHERE user_id = ?",
+      "UPDATE game_users SET token = ? WHERE user_id = ?",
       [token, user_id],
       (err, result) => {
         if (err) {
@@ -526,7 +527,7 @@ var loggedUsers = {};
 function userLogin(user_name, password, socketId) {
   //console.log('Login attempt:', user_name, password);
   db.query(
-    "SELECT * FROM lottery_game_users WHERE user_name = ? AND password = ?",
+    "SELECT * FROM game_users WHERE user_name = ? AND password = ?",
     [user_name, password],
     (err, result) => {
       if (err) {
@@ -565,7 +566,7 @@ function userRegister(
   //check serial
   console.log("genarated serial", serial);
   db.query(
-    "SELECT * FROM lottery_game_users WHERE Serial = ?",
+    "SELECT * FROM game_users WHERE Serial = ?",
     [serial],
     (err, result) => {
       if (err) {
@@ -576,7 +577,7 @@ function userRegister(
         console.log("serial does not exist ", serial);
         //check user name
         db.query(
-          "SELECT * FROM lottery_game_users WHERE user_name = ?",
+          "SELECT * FROM game_users WHERE user_name = ?",
           [username],
           (err, data) => {
             if (err) {
@@ -591,7 +592,7 @@ function userRegister(
               console.log("User does not exist");
               // create lottery game user
               const sql =
-                "INSERT INTO lottery_game_users (`Serial`, `first_name`, `last_name`, `password`, `phone_number`, `register_Date`, `user_name`) VALUES (?, ?, ?, ?, ?, NOW(), ?)";
+                "INSERT INTO game_users (`Serial`, `first_name`, `last_name`, `password`, `phone_number`, `register_Date`, `user_name`) VALUES (?, ?, ?, ?, ?, NOW(), ?)";
               db.query(
                 sql,
                 [serial, fristname, lastname, password, phonenumber, username],
@@ -681,7 +682,7 @@ startCountdownLoop();
 
 function userdataUpdate(serial) {
   db.query(
-    "SELECT * FROM lottery_game_users WHERE Serial = ?",
+    "SELECT * FROM game_users WHERE Serial = ?",
     [serial],
     (err, result) => {
       if (err) {
